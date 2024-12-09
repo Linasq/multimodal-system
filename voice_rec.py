@@ -7,12 +7,20 @@ encoder = VoiceEncoder()
 
 # Funkcje przyszłościowe do zapisu i wczytania embeddingu z folderu, póki co bez zastosowania
 def saveReferenceEmbedding(username: str,filename: str, embedding):
-    np.save("db/admin/"+username+"/"+filename+".npy",embedding)
-    return
+    try:
+        np.save("db/"+username+"/"+filename+".npy",embedding)
+        return
+    except:
+        print("Nie można zapisać pliku")
+        return
 
 def loadReferenceEmbedding(username: str,filename: str):
-    emb = np.load("db/admin/"+username+"/"+filename+".npy")
-    return emb
+    try:
+        emb = np.load("db/"+username+"/"+filename+".npy")
+        return emb
+    except:
+        print("Nie można pobrać referencyjnego embeddingu!")
+        return None
 
 # Funkcja porównuje póki co pliki dźwięku, docelowo, porównywanie dźwięku test do embeddingu
 def compareAudios(reference, test, encoder):
@@ -28,19 +36,26 @@ def compareEmbeddings(emb1, emb2):
 def registerUser(username: str, referenceRecording):
     ref = preprocess_wav(referenceRecording)
     embedding = encoder.embed_utterance(ref)
-    saveReferenceEmbedding(username,username+"_embedding",embedding)
+    saveReferenceEmbedding(username,"voice_embedding",embedding)
     return
 
 def authenticateUser(username: str, testRecording):
     test = preprocess_wav(testRecording)
     testEmbedding = encoder.embed_utterance(test)
-    refEmbedding = loadReferenceEmbedding(username,username+"_embedding")
+    refEmbedding = loadReferenceEmbedding(username,"voice_embedding")
+    if refEmbedding is None:
+        print("Błąd porównania!")
+        return -1
     return compareEmbeddings(refEmbedding, testEmbedding)
 
 
 
-ref = str(input("Podaj nazwę pliku referencyjnego bez .wav\n"))
-test = str(input("Podaj nazwę pliku testowego bez .wav\n"))
-ref = preprocess_wav(ref+".wav")
-test = preprocess_wav(test+".wav")
-print(f"\nPodobieństwo próbek to: {compareAudios(ref,test,encoder)}")
+# ref = str(input("Podaj nazwę pliku referencyjnego bez .wav\n"))
+# test = str(input("Podaj nazwę pliku testowego bez .wav\n"))
+# ref = preprocess_wav(ref+".wav")
+# test = preprocess_wav(test+".wav")
+# print(f"\nPodobieństwo próbek to: {compareAudios(ref,test,encoder)}")
+
+username = 'testUser'
+registerUser(username,'ref.wav')
+
