@@ -1,7 +1,6 @@
 #!/bin/python3
 from resemblyzer import VoiceEncoder, preprocess_wav
 import numpy as np
-from torch import embedding
 
 encoder = VoiceEncoder()
 
