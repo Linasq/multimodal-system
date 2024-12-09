@@ -1,3 +1,5 @@
+# we dont want to leak our logs
+logfile.log
 # from asdf versioning
 .python-version
 # Byte-compiled / optimized / DLL files
