@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up</title>
+    <script>
+        async function takePhoto() {
+            try {
+                const response = await fetch('/take_photo', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message);
+            } catch (error) {
+                console.error('Błąd podczas robienia zdjęcia:', error);
+                alert('Nie udało się zrobić zdjęcia.');
+            }
+        }
+
+        async function recordVoice() {
+            try {
+                const response = await fetch('/record_voice', { method: 'POST' });
+                const data = await response.json();
+                alert(data.message);
+            } catch (error) {
+                console.error('Błąd podczas nagrywania głosu:', error);
+                alert('Nie udało się nagrać głosu.');
+            }
+        }
+    </script>
+</head>
+<body>
+    <div>
+        <label for="username">Nazwa użytkownika:</label>
+        <input type="text" id="username" placeholder="Wpisz swoją nazwę użytkownika">
+        <button onclick="takePhoto()">Zrób zdjęcie</button>
+        <button onclick="recordVoice()">Nagraj głos</button>
+    </div>
+</body>
+</html>
