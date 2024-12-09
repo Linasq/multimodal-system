@@ -55,12 +55,16 @@ def authenticateUser(username: str, testRecording):
     return compareEmbeddings(refEmbedding, testEmbedding)
 
 
+# Odkomentować to do prezentacji na przygotowanych plikach
 
 # ref = str(input("Podaj nazwę pliku referencyjnego bez .wav\n"))
 # test = str(input("Podaj nazwę pliku testowego bez .wav\n"))
 # ref = preprocess_wav(ref+".wav")
 # test = preprocess_wav(test+".wav")
 # print(f"\nPodobieństwo próbek to: {compareAudios(ref,test,encoder)}")
+
+
+# To do testów rejestracji
 
 #username = 'testUser'
 #registerUser(username,'ref.wav')
