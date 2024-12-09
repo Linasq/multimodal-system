@@ -27,7 +27,7 @@ def recordReferenceAudio(file, duration=7, samplerate=16000):
 
 def recordTestAudio(file, duration=2, samplerate=16000):
     print("Przeczytaj to krótkie zdanie aby potwierdzić swoją tożsamość:")
-    print("Jebać żydów")
+    print("Karaluchy to potężne stworzenia")
     print("nagrywanie zacznie się za 3 sekundy")
     time.sleep(3)
     print("nagrywam...")
