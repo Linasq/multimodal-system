@@ -34,17 +34,24 @@ def compareEmbeddings(emb1, emb2):
 
 
 def registerUser(username: str, referenceRecording):
-    ref = preprocess_wav(referenceRecording)
-    embedding = encoder.embed_utterance(ref)
-    saveReferenceEmbedding(username,"voice_embedding",embedding)
+    try:
+        ref = preprocess_wav(referenceRecording)
+        embedding = encoder.embed_utterance(ref)
+        saveReferenceEmbedding(username,"voice_embedding",embedding)
+    except:
+        print("Problem z audio referencyjnym!")
     return
-
 def authenticateUser(username: str, testRecording):
     test = preprocess_wav(testRecording)
-    testEmbedding = encoder.embed_utterance(test)
+    try:
+        testEmbedding = encoder.embed_utterance(test)
+    except:
+        print("Problem z testowym audio")
+        return -1
+
     refEmbedding = loadReferenceEmbedding(username,"voice_embedding")
     if refEmbedding is None:
-        print("Błąd porównania!")
+        print("Błąd wczytywania embeddingu referencyjnego!")
         return -1
     return compareEmbeddings(refEmbedding, testEmbedding)
 
@@ -56,6 +63,6 @@ def authenticateUser(username: str, testRecording):
 # test = preprocess_wav(test+".wav")
 # print(f"\nPodobieństwo próbek to: {compareAudios(ref,test,encoder)}")
 
-username = 'testUser'
-registerUser(username,'ref.wav')
+#username = 'testUser'
+#registerUser(username,'ref.wav')
 
