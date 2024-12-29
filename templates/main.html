@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biometria Projekt</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; /* Nowoczesna czcionka */
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0; /* Delikatne tło */
+            min-height: 100vh; /* Minimalna wysokość, aby treść była zawsze na środku */
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column; /* Zmiana na kolumnę dla responsywności */
+            align-items: center;
+            width: 90%; /* Dostosowanie szerokości dla urządzeń mobilnych */
+            max-width: 800px;
+            margin: 20px;
+            padding: 30px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Delikatny cień */
+            border-radius: 8px; /* Zaokrąglone rogi */
+        }
+
+        .left {
+            margin-bottom: 20px; /* Odstęp od obrazka */
+        }
+
+        .left img {
+            max-width: 200px; /* Ustalona szerokość obrazka */
+            height: auto;
+            border-radius: 8px; /* Zaokrąglone rogi obrazka */
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .center {
+            text-align: center;
+        }
+
+        .center h1 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            color: #333; /* Ciemniejszy kolor tekstu */
+        }
+
+        .buttons {
+            display: flex;
+            gap: 20px; /* Zwiększony odstęp między przyciskami */
+            justify-content: center;
+            flex-wrap: wrap; /* Przenoszenie przycisków do nowej linii, jeśli brakuje miejsca */
+        }
+
+        .buttons button {
+            padding: 12px 25px; /* Większe przyciski */
+            font-size: 1.1em;
+            cursor: pointer;
+            border: none; /* Usunięcie domyślnej ramki */
+            border-radius: 8px;
+            background-color: #007BFF;
+            color: white;
+            transition: background-color 0.3s ease; /* Płynne przejście koloru tła */
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Dodanie cienia */
+        }
+
+        .buttons button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px); /* Delikatne uniesienie przy najechaniu */
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Zwiększony cień przy najechaniu */
+        }
+        @media (min-width: 768px) {
+            .container{
+                flex-direction: row;
+            }
+            .left{
+                margin-bottom: 0px;
+                margin-right: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="left">
+            <img src="../templates/agh.png" alt="AGH">
+        </div>
+        <div class="center">
+            <h1>Biometria Projekt</h1>
+            <div class="buttons">
+                <button onclick="location.href='log_in'">Log In</button>
+                <button onclick="location.href='sign_up'">Sign Up</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
