@@ -1,62 +1,88 @@
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 import cv2
 import sounddevice as sd
 import wave
+import os
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
+SIGN_UP_FOLDER = 'sign_up_samples'
+LOG_IN_FOLDER = 'log_in_samples'
+
 @app.route('/')
 def home():
-    return render_template('stronka.html')  # Domyślnie będzie szukać w folderze 'templates'
+    return render_template('main.html')
 
-# Strona logowania - załaduj "log_in.html"
-@app.route('/log_in')
-def log_in():
-    return render_template('log_in.html')  # Wskaż dokładnie nazwę pliku HTML
+os.makedirs(SIGN_UP_FOLDER, exist_ok=True)
+os.makedirs(LOG_IN_FOLDER, exist_ok=True)
 
-# Strona rejestracji - załaduj "sign_up.html"
-@app.route('/sign_up')
-def sign_up():
-    return render_template('sign_up.html')  # Wskaż dokładnie nazwę pliku HTML
+def get_upload_folder(is_login):
+    if is_login == 'true':  # Jeżeli is_login jest równe "true"
+        return LOG_IN_FOLDER
+    return SIGN_UP_FOLDER
 
-
-# Funkcja do robienia zdjęcia
-def take_photo(output_filename="photo.jpg"):
-    cap = cv2.VideoCapture(0)  # Użycie domyślnej kamery
+def take_photo(username, is_login):
+    if not username:
+        return "Brak nazwy użytkownika."
+    
+    folder = get_upload_folder(is_login)  # Ustal folder na podstawie wartości is_login
+    filename = secure_filename(username + ".jpg")
+    filepath = os.path.join(folder, filename)
+    
+    cap = cv2.VideoCapture(0)
     if not cap.isOpened():
         return "Nie można uzyskać dostępu do kamery."
 
     ret, frame = cap.read()
     if ret:
-        cv2.imwrite(output_filename, frame)
+        cv2.imwrite(filepath, frame)
         cap.release()
-        return f"Zdjęcie zapisane jako {output_filename}"
+        return f"Zdjęcie zapisane jako {filename}"
     else:
         cap.release()
         return "Nie udało się zrobić zdjęcia."
 
-# Funkcja do nagrywania głosu
-def record_voice(output_filename="audio.wav", duration=7):
-    sample_rate = 16000  # Częstotliwość próbkowania
+def record_voice(username, is_login):
+    if not username:
+        return "Brak nazwy użytkownika."
+    
+    folder = get_upload_folder(is_login)  # Ustal folder na podstawie wartości is_login
+    filename = secure_filename(username + ".wav")
+    filepath = os.path.join(folder, filename)
+    
+    sample_rate = 16000
     try:
-        audio_data = sd.rec(int(duration * sample_rate), samplerate=sample_rate, channels=2, dtype='int16')
-        sd.wait()  # Czekaj na zakończenie nagrywania
-        with wave.open(output_filename, 'wb') as wf:
-            wf.setnchannels(2)
-            wf.setsampwidth(2)  # 16-bitowe próbki
+        audio_data = sd.rec(int(7 * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
+        sd.wait()
+        with wave.open(filepath, 'wb') as wf:
+            wf.setnchannels(1)
+            wf.setsampwidth(2)
             wf.setframerate(sample_rate)
             wf.writeframes(audio_data.tobytes())
-        return f"Dźwięk zapisany jako {output_filename}"
+        return f"Dźwięk zapisany jako {filename}"
     except Exception as e:
         return f"Błąd podczas nagrywania: {str(e)}"
+    
+@app.route('/log_in')
+def log_in():
+    return render_template('log_in.html')  # Strona logowania
+
+@app.route('/sign_up')
+def sign_up():
+    return render_template('sign_up.html')  # Strona rejestracji
 
 @app.route('/take_photo', methods=['POST'])
 def take_photo_route():
-    message = take_photo()
+    username = request.form.get('username')
+    is_login = request.form.get('is_login')  # Odbieramy is_login
+    message = take_photo(username, is_login)
     return jsonify({"message": message})
 
 @app.route('/record_voice', methods=['POST'])
 def record_voice_route():
-    message = record_voice()
+    username = request.form.get('username')
+    is_login = request.form.get('is_login')  # Odbieramy is_login
+    message = record_voice(username, is_login)
     return jsonify({"message": message})
 
 if __name__ == "__main__":

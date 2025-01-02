@@ -3,37 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sign Up</title>
+    <title>Rejestracja</title>
+    <style>
+        body {
+            background-color: #f0f0f0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            max-width: 600px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .container label {
+            display: block;
+            font-size: 1.1em;
+            margin-bottom: 8px;
+            color: #333;
+            text-align: left;
+        }
+
+        .container input[type="text"] {
+            width: calc(100% - 24px);
+            padding: 12px;
+            font-size: 1em;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+            transition: border-color 0.3s ease;
+        }
+
+        .container input[type="text"]:focus {
+            border-color: #007bff;
+            outline: none;
+            box-shadow: 0 0 5px rgba(0, 123, 255, .25);
+        }
+
+        .container button {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1.1em;
+            transition: background-color 0.3s ease;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .container button:hover {
+            background-color: #0056b3;
+        }
+
+        #status {
+            margin-top: 20px;
+            font-weight: bold;
+            white-space: pre-wrap;
+            text-align: left;
+        }
+    </style>
+    <style>
+        body {
+            background-image: url("{{ url_for('static', filename='tlo.jpg') }}");
+            background-size: cover;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Rejestracja</h2>
+        <label for="username">Nazwa użytkownika:</label>
+        <input type="text" id="username" name="username" placeholder="Wpisz swoją nazwę użytkownika">
+        <button onclick="takePhoto()">Zrób zdjęcie</button>
+        <button onclick="recordVoice()">Nagraj głos</button>
+        <div id="status"></div>
+    </div>
+
     <script>
+        function updateStatus(message) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+        }
+
         async function takePhoto() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                updateStatus("Podaj nazwę użytkownika!");
+                return;
+            }
+
+            updateStatus("Trwa robienie zdjęcia...");
+
             try {
-                const response = await fetch('/take_photo', { method: 'POST' });
+                const formData = new FormData();
+                formData.append('username', username);
+
+                const response = await fetch('/take_photo', {
+                    method: 'POST',
+                    body: formData
+                });
                 const data = await response.json();
-                alert(data.message);
+                updateStatus(data.message);
             } catch (error) {
                 console.error('Błąd podczas robienia zdjęcia:', error);
-                alert('Nie udało się zrobić zdjęcia.');
+                updateStatus('Nie udało się zrobić zdjęcia.');
             }
         }
 
         async function recordVoice() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                updateStatus("Podaj nazwę użytkownika!");
+                return;
+            }
+
+            const duration = 7;
+            for (let i = duration; i > 0; i--) {
+                updateStatus(`Nagrywanie głosu trwa: (${i} s)...\nJeśli nie wiesz, co powiedzieć, przeczytaj:\n"Litwo! Ojczyzno moja! ty jesteś jak zdrowie.\nIle cię trzeba cenić, ten tylko się dowie,\nKto cię stracił. Dziś piękność twą w całej ozdobie\nWidzę i opisuję, bo tęsknię po tobie.."`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
+            }
+
             try {
-                const response = await fetch('/record_voice', { method: 'POST' });
+                const formData = new FormData();
+                formData.append('username', username);
+
+                const response = await fetch('/record_voice', {
+                    method: 'POST',
+                    body: formData
+                });
                 const data = await response.json();
-                alert(data.message);
+                updateStatus("Zakończono nagrywanie.\n" + data.message);
             } catch (error) {
                 console.error('Błąd podczas nagrywania głosu:', error);
-                alert('Nie udało się nagrać głosu.');
+                updateStatus('Nie udało się nagrać głosu.');
             }
         }
     </script>
-</head>
-<body>
-    <div>
-        <label for="username">Nazwa użytkownika:</label>
-        <input type="text" id="username" placeholder="Wpisz swoją nazwę użytkownika">
-        <button onclick="takePhoto()">Zrób zdjęcie</button>
-        <button onclick="recordVoice()">Nagraj głos</button>
-    </div>
 </body>
 </html>
