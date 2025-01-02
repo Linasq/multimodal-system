@@ -90,6 +90,8 @@
         <input type="text" id="username" name="username" placeholder="Wpisz swoją nazwę użytkownika">
         <button onclick="takePhoto()">Zrób zdjęcie</button>
         <button onclick="recordVoice()">Nagraj głos</button>
+        <button onclick="sign_up()">Zarejestruj się</button>
+        <button onclick="location.href='/'">Sign Up</button>
         <div id="status"></div>
     </div>
 
@@ -152,6 +154,26 @@
                 updateStatus('Nie udało się nagrać głosu.');
             }
         }
+
+
+        async function sign_up() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                updateStatus("Podaj nazwę użytkownika!");
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('username', username);
+
+            const response = await fetch('/sign_up', {
+                method: 'POST',
+                body: formData
+            });
+            updateStatus(data.message)
+        }
+
+
     </script>
 </body>
 </html>
