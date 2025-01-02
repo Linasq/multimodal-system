@@ -1,4 +1,6 @@
 # we dont want to leak our logs
+db/*
+tmp/*
 logfile.log
 # from asdf versioning
 .python-version

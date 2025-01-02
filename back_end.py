@@ -9,6 +9,7 @@ import flask_login
 
 
 app = Flask(__name__)
+app.secret_key = 'test'
 
 login_manager=flask_login.LoginManager()
 login_manager.init_app(app)
@@ -19,17 +20,24 @@ LOG_IN_FOLDER = 'tmp'
 def home():
     return render_template('main.html')
 
-os.makedirs(SIGN_UP_FOLDER, exist_ok=True)
-os.makedirs(LOG_IN_FOLDER, exist_ok=True)
+
+def makeDirs(is_login, username):
+    if is_login: 
+        os.makedirs(LOG_IN_FOLDER+f'/{username}', exist_ok=True)
+    else:
+        os.makedirs(SIGN_UP_FOLDER+f'/{username}', exist_ok=True)
 
 def get_upload_folder(is_login):
     if is_login == 'true':  # Jeżeli is_login jest równe "true"
         return LOG_IN_FOLDER
     return SIGN_UP_FOLDER
 
+
 def take_photo(username, is_login):
     if not username:
         return "Brak nazwy użytkownika."
+
+    makeDirs(is_login, username)
     
     folder = get_upload_folder(is_login) + "/" + username  # Ustal folder na podstawie wartości is_login
     filename = secure_filename("img.png")
@@ -48,9 +56,12 @@ def take_photo(username, is_login):
         cap.release()
         return "Nie udało się zrobić zdjęcia."
 
+
 def record_voice(username, is_login):
     if not username:
         return "Brak nazwy użytkownika."
+
+    makeDirs(is_login, username)
     
     folder = get_upload_folder(is_login) + "/" + username  # Ustal folder na podstawie wartości is_login
     filename = secure_filename("reference.wav")
@@ -99,8 +110,8 @@ def request_loader(request):
 
 def verification(username):
     if username in getUser():
-        face_check=face.verify_face(username)
-        voice_check=True
+        face_check = face.verify_face(username)
+        voice_check = True
         #Michał przerób
         if face_check and voice_check:
             user = User()
@@ -111,21 +122,16 @@ def verification(username):
     return False
 
 
-
-
-
-
-
-
-
 #--------------------------------------------------------------------------------------        
 @app.route('/log_in')
 def log_in():
     return render_template('log_in.html')  # Strona logowania
 
+
 @app.route('/sign_up')
 def sign_up():
     return render_template('sign_up.html')  # Strona rejestracji
+
 
 @app.route('/take_photo', methods=['POST'])
 def take_photo_route():
@@ -134,6 +140,7 @@ def take_photo_route():
     message = take_photo(username, is_login)
     return jsonify({"message": message})
 
+
 @app.route('/record_voice', methods=['POST'])
 def record_voice_route():
     username = request.form.get('username')
@@ -141,30 +148,35 @@ def record_voice_route():
     message = record_voice(username, is_login)
     return jsonify({"message": message})
 
+
 @app.route('/protected')
 @flask_login.login_required
 def protected():
-    return 'Logged in as: ' + flask_login.current_user.id
+    return jsonify({"message":'Logged in as: ' + flask_login.current_user.id})
+
 
 @app.route('/logout')
 def logout():
     flask_login.logout_user()
     return 'Logged out'
 
+
 @login_manager.unauthorized_handler
 def unauthorized_handler():
     return 'Unauthorized', 401
 
+
 @app.route('/log_in',methods=['POST'])
-def log_in():
+def log_in_post():
     username = request.form.get('username')
-    message=verification(username)
+    message= verification(username)
     if message:
         return redirect(url_for('protected'))
     return jsonify({"message": "bad login"})
 
+
 @app.route('/sign_up',methods=['POST'])
-def sign_up():
+def sign_up_post():
     username = request.form.get('username')
     user_data=[x for x in os.listdir(f'db/{username}') if os.path.isfile(os.path.join(f'db/{username}',x))]
     if len(user_data)==2:

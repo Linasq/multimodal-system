@@ -176,7 +176,8 @@
                     method: 'POST',
                     body: formData
                 });
-                const data = await response.json();
+                await new Promise(resolve => setTimeout(resolve, 7000));
+                const data = response.json();
             } catch (error) {
                 console.error('Błąd podczas logowania:', error);
                 updateStatus('Nie udało się zalogować.');
