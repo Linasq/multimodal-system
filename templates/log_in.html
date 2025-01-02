@@ -91,6 +91,7 @@
         <input type="hidden" id="is_login" name="is_login" value="true"> <!-- Zmienna is_login ustawiona na true -->
         <button onclick="takePhoto()">Zrób zdjęcie</button>
         <button onclick="recordVoice()">Nagraj głos</button>
+        <button onclick="log_in()">Zaloguj</button>
         <div id="status"></div>
     </div>
 
@@ -157,6 +158,32 @@
                 updateStatus('Nie udało się nagrać głosu.');
             }
         }
+
+        async function log_in() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                updateStatus("Podaj nazwę użytkownika!");
+                return;
+            }
+
+            updateStatus('Trwa uwierzytelnianie... z reguły trwa to około 5 sekund')
+
+            try {
+                const formData = new FormData();
+                formData.append('username', username);
+
+                const response = await fetch('/log_in', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+            } catch (error) {
+                console.error('Błąd podczas logowania:', error);
+                updateStatus('Nie udało się zalogować.');
+            }
+        }
+
+
     </script>
 </body>
 </html>

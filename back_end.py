@@ -1,13 +1,19 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, redirect, url_for
 import cv2
 import sounddevice as sd
 import wave
 import os
 from werkzeug.utils import secure_filename
+import face
+import flask_login
+
 
 app = Flask(__name__)
-SIGN_UP_FOLDER = 'sign_up_samples'
-LOG_IN_FOLDER = 'log_in_samples'
+
+login_manager=flask_login.LoginManager()
+login_manager.init_app(app)
+SIGN_UP_FOLDER = 'db'
+LOG_IN_FOLDER = 'tmp'
 
 @app.route('/')
 def home():
@@ -25,8 +31,8 @@ def take_photo(username, is_login):
     if not username:
         return "Brak nazwy użytkownika."
     
-    folder = get_upload_folder(is_login)  # Ustal folder na podstawie wartości is_login
-    filename = secure_filename(username + ".jpg")
+    folder = get_upload_folder(is_login) + "/" + username  # Ustal folder na podstawie wartości is_login
+    filename = secure_filename("img.png")
     filepath = os.path.join(folder, filename)
     
     cap = cv2.VideoCapture(0)
@@ -46,8 +52,8 @@ def record_voice(username, is_login):
     if not username:
         return "Brak nazwy użytkownika."
     
-    folder = get_upload_folder(is_login)  # Ustal folder na podstawie wartości is_login
-    filename = secure_filename(username + ".wav")
+    folder = get_upload_folder(is_login) + "/" + username  # Ustal folder na podstawie wartości is_login
+    filename = secure_filename("reference.wav")
     filepath = os.path.join(folder, filename)
     
     sample_rate = 16000
@@ -62,7 +68,57 @@ def record_voice(username, is_login):
         return f"Dźwięk zapisany jako {filename}"
     except Exception as e:
         return f"Błąd podczas nagrywania: {str(e)}"
-    
+#--------------------------------------------------------------------------------------    
+def getUser():
+  return os.listdir('db')
+
+class User(flask_login.UserMixin):
+    pass
+
+
+@login_manager.user_loader
+def user_loader(username):
+    if username not in getUser():
+        return
+
+    user = User()
+    user.id = username
+    return user
+
+
+@login_manager.request_loader
+def request_loader(request):
+    username = request.form.get('username')
+    if username not in getUser():
+        return
+
+    user = User()
+    user.id = username
+    return user
+
+
+def verification(username):
+    if username in getUser():
+        face_check=face.verify_face(username)
+        voice_check=True
+        #Michał przerób
+        if face_check and voice_check:
+            user = User()
+            user.id = username
+            flask_login.login_user(user)
+            return True
+
+    return False
+
+
+
+
+
+
+
+
+
+#--------------------------------------------------------------------------------------        
 @app.route('/log_in')
 def log_in():
     return render_template('log_in.html')  # Strona logowania
@@ -85,5 +141,38 @@ def record_voice_route():
     message = record_voice(username, is_login)
     return jsonify({"message": message})
 
+@app.route('/protected')
+@flask_login.login_required
+def protected():
+    return 'Logged in as: ' + flask_login.current_user.id
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized', 401
+
+@app.route('/log_in',methods=['POST'])
+def log_in():
+    username = request.form.get('username')
+    message=verification(username)
+    if message:
+        return redirect(url_for('protected'))
+    return jsonify({"message": "bad login"})
+
+@app.route('/sign_up',methods=['POST'])
+def sign_up():
+    username = request.form.get('username')
+    user_data=[x for x in os.listdir(f'db/{username}') if os.path.isfile(os.path.join(f'db/{username}',x))]
+    if len(user_data)==2:
+        return jsonify({"message": "Pomyślnie zarejestrowano użytkownika "+ username})
+    return jsonify({"message": "Niedokończono rejestracji"})
+
+
 if __name__ == "__main__":
     app.run(host="127.0.0.1", port=5000, debug=True)
+
+

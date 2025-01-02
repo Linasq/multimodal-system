@@ -14,13 +14,15 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def verify_face(login: str, img_path: str) -> bool:
+def verify_face(login: str) -> bool:
        # there we can find registered user's photo 
     try:
         img2_path = f'db/{login}/img.png'
-        result = DeepFace.verify(img1_path=img_path, img2_path=img2_path)
-        return result['result']
+        img1_path = f'tmp/{login}/img.png'
+
+        result = DeepFace.verify(img1_path=img1_path, img2_path=img2_path)
         logger.info(f'Successfully added photo of user {login}')
+        return result['result']
     except:
         logger.error('User has not been registered yet')
 
