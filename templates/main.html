@@ -85,11 +85,17 @@
             }
         }
     </style>
+        <style>
+            body {
+                background-image: url("{{ url_for('static', filename='tlo.jpg') }}");
+                background-size: cover;
+            }
+        </style>
 </head>
 <body>
     <div class="container">
         <div class="left">
-            <img src="../templates/agh.png" alt="AGH">
+            <img src="{{ url_for('static', filename='agh.png') }}" alt="AGH">
         </div>
         <div class="center">
             <h1>Biometria Projekt</h1>
