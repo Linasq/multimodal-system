@@ -44,23 +44,21 @@ def verify_face(login: str):
             emb2 = emb2.replace("'", '"')
             emb2 = emb2.replace('None', '"None"')
 
-        test1 = json.loads(test1)
-        test1 = test1['embedding']
-        test1 = np.array(test1)
+        emb1 = json.loads(emb1)
+        emb1 = emb1['embedding']
+        emb1 = np.array(emb1)
 
-        test2 = json.loads(test2)
-        test2 = test2['embedding']
-        test2 = np.array(test2)
+        emb2 = json.loads(emb2)
+        emb2 = emb2['embedding']
+        emb2 = np.array(emb2)
 
-        dot_product = np.dot(test1, test2)
-        source_norm = np.linalg.norm(test1)
-        test_norm = np.linalg.norm(test2)
+        dot_product = np.dot(emb1, emb2)
+        source_norm = np.linalg.norm(emb1)
+        test_norm = np.linalg.norm(emb2)
         distances = 1 - dot_product / (source_norm * test_norm)
 
-
-        # result = cosine_similarity()
         logger.info(f'Successfully calculated cosine distance of user {login}')
-        # return result['result']
+        return True if distances < 0.68 else False
     except:
         logger.error('User has not been registered yet')
 
