@@ -1,8 +1,10 @@
 #!/bin/python3
 from resemblyzer import VoiceEncoder, preprocess_wav
 import numpy as np
+from torch import threshold
 
 encoder = VoiceEncoder()
+threshold = 0.6
 
 # Funkcje przyszłościowe do zapisu i wczytania embeddingu z folderu, póki co bez zastosowania
 def saveReferenceEmbedding(username: str,filename: str, embedding):
@@ -54,6 +56,11 @@ def authenticateUser(username: str, testRecording):
         return -1
     return compareEmbeddings(refEmbedding, testEmbedding)
 
+def voiceCheck(username: str):
+    reference = preprocess_wav("db/"+username+".wav")
+    test = preprocess_wav("tmp/"+username+".wav")
+    similarity = compareAudios(reference, test,encoder)
+    return similarity>threshold
 
 # Odkomentować to do prezentacji na przygotowanych plikach
 
