@@ -5,6 +5,7 @@ import wave
 import os
 from werkzeug.utils import secure_filename
 import face
+import voice
 import flask_login
 
 
@@ -82,8 +83,8 @@ def take_photo(username, is_login):
     if ret:
         cv2.imwrite(filepath, frame)
         cap.release()
-        #TODO zapisac embedding zamiast zdjecia
-        emb = face.save_embedding(username,is_login)
+        face.create_embedding(username,is_login)
+        os.remove(f'{folder}/img.png')
         return f"Zdjęcie zapisane jako {filename}"
     else:
         cap.release()
@@ -125,8 +126,7 @@ def getUser():
 def verification(username):
     if username in getUser():
         face_check = face.verify_face(username)
-        voice_check = True
-        # Michał przerób
+        voice_check = voice. 
         if face_check and voice_check:
             user = User()
             user.id = username
