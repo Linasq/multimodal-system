@@ -28,13 +28,38 @@ def save_embedding(login: str, is_login: bool):
     return result
 
 
+# do obliczania podobienstwa
 def verify_face(login: str):
     try:
-        img2_path = f'db/{login}/img.png'
-        img1_path = f'tmp/{login}/img.png'
+        emb1_path = f'db/{login}/test_emb.txt'
+        emb2_path = f'tmp/{login}/test_emb.txt'
+
+        with open(emb1_path, 'r') as f:
+            emb1 = f.read()
+            emb1 = emb1.replace("'", '"')
+            emb1 = emb1.replace('None', '"None"')
+
+        with open(emb2_path, 'r') as f:
+            emb2 = f.read()
+            emb2 = emb2.replace("'", '"')
+            emb2 = emb2.replace('None', '"None"')
+
+        test1 = json.loads(test1)
+        test1 = test1['embedding']
+        test1 = np.array(test1)
+
+        test2 = json.loads(test2)
+        test2 = test2['embedding']
+        test2 = np.array(test2)
+
+        dot_product = np.dot(test1, test2)
+        source_norm = np.linalg.norm(test1)
+        test_norm = np.linalg.norm(test2)
+        distances = 1 - dot_product / (source_norm * test_norm)
+
 
         # result = cosine_similarity()
-        logger.info(f'Successfully calculated cosine similarity of user {login}')
+        logger.info(f'Successfully calculated cosine distance of user {login}')
         # return result['result']
     except:
         logger.error('User has not been registered yet')
@@ -42,6 +67,7 @@ def verify_face(login: str):
     return False
 
 
+# do testowania 
 if __name__ == '__main__':
     emb1 = DeepFace.represent('db/Linas/img.png')
     emb2 = DeepFace.represent('tmp/Linas/img.png')

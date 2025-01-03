@@ -124,8 +124,8 @@ def getUser():
 # weryfikuje uzytkownika, ktory sie loguje
 def verification(username):
     if username in getUser():
-        face_check=face.verify_face(username)
-        voice_check=True
+        face_check = face.verify_face(username)
+        voice_check = True
         # Michał przerób
         if face_check and voice_check:
             user = User()
