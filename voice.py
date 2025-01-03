@@ -40,6 +40,8 @@ def registerUser(username: str, referenceRecording):
     except:
         print("Problem z audio referencyjnym!")
     return
+
+
 def authenticateUser(username: str, testRecording):
     test = preprocess_wav(testRecording)
     try:

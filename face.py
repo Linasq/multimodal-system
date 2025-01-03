@@ -1,6 +1,5 @@
 from deepface import DeepFace
 import logging
-from sklearn.metrics.pairwise import cosine_distances
 import json
 import numpy as np
 
@@ -17,22 +16,30 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def save_embedding(login: str, is_login: bool):
+# creating embeddings
+def create_embedding(login: str, is_login: bool):
     if is_login:
         img_path = f'tmp/{login}/img.png'
+        emb_path = f'tmp/{login}/emb.txt'
     else:
         img_path = f'db/{login}/img.png'
+        emb_path = f'db/{login}/emb.txt'
 
+    logger.critical('Mordo tu wbilem')
     result = DeepFace.represent(img_path=img_path)
     logger.info(f'Created embedding of user {login}')
-    return result
+    
+    with open(emb_path, 'w') as f:
+        f.write(str(result[0]))
+
+    logger.info(f'Saved embedding of user {login} in {emb_path}')
 
 
-# do obliczania podobienstwa
+# to calculate similarity
 def verify_face(login: str):
     try:
-        emb1_path = f'db/{login}/test_emb.txt'
-        emb2_path = f'tmp/{login}/test_emb.txt'
+        emb1_path = f'db/{login}/emb.txt'
+        emb2_path = f'tmp/{login}/emb.txt'
 
         with open(emb1_path, 'r') as f:
             emb1 = f.read()
@@ -58,7 +65,7 @@ def verify_face(login: str):
         distances = 1 - dot_product / (source_norm * test_norm)
 
         logger.info(f'Successfully calculated cosine distance of user {login}')
-        return True if distances < 0.68 else False
+        return distances < 0.68
     except:
         logger.error('User has not been registered yet')
 
