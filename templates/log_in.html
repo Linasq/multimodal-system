@@ -166,7 +166,7 @@
                 return;
             }
 
-            updateStatus('Trwa uwierzytelnianie... z reguły trwa to około 5 sekund')
+            updateStatus('Trwa uwierzytelnianie... ')
 
             try {
                 const formData = new FormData();
@@ -176,8 +176,8 @@
                     method: 'POST',
                     body: formData
                 });
-                await new Promise(resolve => setTimeout(resolve, 7000));
-                const data = response.json();
+                const data = await response.json();
+                updateStatus(data.message);
             } catch (error) {
                 console.error('Błąd podczas logowania:', error);
                 updateStatus('Nie udało się zalogować.');

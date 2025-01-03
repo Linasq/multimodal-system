@@ -126,7 +126,7 @@ def getUser():
 def verification(username):
     if username in getUser():
         face_check = face.verify_face(username)
-        voice_check = voice. 
+        voice_check = voice.voiceCheck(username)
         if face_check and voice_check:
             user = User()
             user.id = username
@@ -191,17 +191,19 @@ def unauthorized_handler():
 def log_in_post():
     username = request.form.get('username')
     message= verification(username)
+
     if message:
         return redirect(url_for('protected'))
-    return jsonify({"message": "bad login"})
+    return jsonify({"message":"Nie zalogowano użytkownika"})
 
 
 @app.route('/sign_up',methods=['POST'])
 def sign_up_post():
     username = request.form.get('username')
-    user_data=[x for x in os.listdir(f'db/{username}') if os.path.isfile(os.path.join(f'db/{username}',x))]
-    if len(user_data)==2:
-        return jsonify({"message": "Pomyślnie zarejestrowano użytkownika "+ username})
+    if username in getUser():
+        user_data=[x for x in os.listdir(f'db/{username}') if os.path.isfile(os.path.join(f'db/{username}',x))]
+        if len(user_data)==2:
+            return jsonify({"message": "Pomyślnie zarejestrowano użytkownika "+ username})
     return jsonify({"message": "Niedokończono rejestracji"})
 
 
