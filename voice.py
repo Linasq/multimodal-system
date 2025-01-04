@@ -59,8 +59,8 @@ def authenticateUser(username: str, testRecording):
     return compareEmbeddings(refEmbedding, testEmbedding)
 
 def voiceCheck(username: str):
-    reference = preprocess_wav("db/"+username+".wav")
-    test = preprocess_wav("tmp/"+username+".wav")
+    reference = preprocess_wav("db/"+username+"/reference.wav")
+    test = preprocess_wav("tmp/"+username+"/reference.wav")
     similarity = compareAudios(reference, test,encoder)
     return similarity>threshold
 
