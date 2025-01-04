@@ -92,6 +92,7 @@
         <button onclick="takePhoto()">Zrób zdjęcie</button>
         <button onclick="recordVoice()">Nagraj głos</button>
         <button onclick="log_in()">Zaloguj</button>
+        <button onclick="location.href='/'">Powrót</button>
         <div id="status"></div>
     </div>
 
@@ -128,12 +129,12 @@
             }
         }
 
-        async function recordVoice() {
-            const username = document.getElementById('username').value;
-            const isLogin = document.getElementById('is_login').value; // Pobranie wartości is_login
-            if (!username) {
-                updateStatus("Podaj nazwę użytkownika!");
-                return;
+
+        async function tekst() {
+
+          for (let i = 2; i > 0; i--) {
+                updateStatus(`Zaraz zacznie się nagrywanie głosu ...`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
 
             const duration = 7;
@@ -142,7 +143,21 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
 
+        }
+
+
+        async function recordVoice() {
+            const username = document.getElementById('username').value;
+            const isLogin = document.getElementById('is_login').value; // Pobranie wartości is_login
+            if (!username) {
+                updateStatus("Podaj nazwę użytkownika!");
+                return;
+            }
+            
             try {
+                tekst();
+                await new Promise(resolve => setTimeout(resolve, 2000)); // poczekej, az na pewno skonczy nagrywac
+
                 const formData = new FormData();
                 formData.append('username', username);
                 formData.append('is_login', isLogin); // Dodanie is_login do FormData
@@ -178,6 +193,12 @@
                 });
                 const data = await response.json();
                 updateStatus(data.message);
+                
+                await new Promise(resolve => setTimeout(resolve, 1000));
+
+                if (data.message.indexOf('Nie') != 0) {
+                  location.href='protected';
+                }
             } catch (error) {
                 console.error('Błąd podczas logowania:', error);
                 updateStatus('Nie udało się zalogować.');

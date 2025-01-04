@@ -126,11 +126,11 @@
             }
         }
 
-        async function recordVoice() {
-            const username = document.getElementById('username').value;
-            if (!username) {
-                updateStatus("Podaj nazwę użytkownika!");
-                return;
+
+        async function tekst() {
+          for (let i = 2; i > 0; i--) {
+                updateStatus(`Zaraz zacznie się nagrywanie głosu ...`);
+                await new Promise(resolve => setTimeout(resolve, 1000));
             }
 
             const duration = 7;
@@ -139,7 +139,20 @@
                 await new Promise(resolve => setTimeout(resolve, 1000));
             }
 
+        }
+
+
+        async function recordVoice() {
+            const username = document.getElementById('username').value;
+            if (!username) {
+                updateStatus("Podaj nazwę użytkownika!");
+                return;
+            }
+
             try {
+                tekst();
+                await new Promise(resolve => setTimeout(resolve, 2000));
+              
                 const formData = new FormData();
                 formData.append('username', username);
 

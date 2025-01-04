@@ -10,7 +10,8 @@ import flask_login
 
 
 app = Flask(__name__)
-app.secret_key = 'test' #TODO zmienic pozniej na cos bardziej zaawansowanego
+with open('.secret', 'r') as f:
+    app.secret_key = f.read()
 
 login_manager=flask_login.LoginManager()
 login_manager.init_app(app)
@@ -121,7 +122,6 @@ def getUser():
   return os.listdir('db')
 
 
-#TODO usuwac sciezke tmp/login bo zalogowaniu sie uzytkownika
 # weryfikuje uzytkownika, ktory sie loguje
 def verification(username):
     if username in getUser():
@@ -131,6 +131,7 @@ def verification(username):
             user = User()
             user.id = username
             flask_login.login_user(user)
+            os.system(f'rm -rf tmp/{username}')
             return True
 
     return False
@@ -173,7 +174,7 @@ def record_voice_route():
 @app.route('/protected')
 @flask_login.login_required
 def protected():
-    return jsonify({"message":'Logged in as: ' + flask_login.current_user.id})
+    return render_template('protected.html')
 
 
 @app.route('/logout')
@@ -193,7 +194,7 @@ def log_in_post():
     message= verification(username)
 
     if message:
-        return redirect(url_for('protected'))
+        return jsonify({"message":'Zalogowano jako: ' + flask_login.current_user.id + '\n Teraz możesz przeglądać stronę dla zalogowanych'})
     return jsonify({"message":"Nie zalogowano użytkownika"})
 
 
