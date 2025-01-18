@@ -7,12 +7,14 @@ from werkzeug.utils import secure_filename
 import face
 import voice
 import flask_login
+from base64 import b64decode
 
 
 app = Flask(__name__)
 with open('.secret', 'r') as f:
     app.secret_key = f.read()
 
+app.config['MAX_CONTENT_LENGTH'] = 50 * 1024 * 1024
 login_manager=flask_login.LoginManager()
 login_manager.init_app(app)
 SIGN_UP_FOLDER = 'db'
@@ -66,9 +68,9 @@ def get_upload_folder(is_login):
 
 
 # zapisuje zdjecia w odpowiednich folderach
-def take_photo(username, is_login):
-    if not username:
-        return "Brak nazwy użytkownika."
+def take_photo(username, is_login, photo):
+    if not username or not photo:
+        return "Brak nazwy użytkownika lub zdjęcia"
 
     makeDirs(is_login, username)
     
@@ -76,19 +78,16 @@ def take_photo(username, is_login):
     filename = secure_filename("img.png")
     filepath = os.path.join(folder, filename)
     
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        return "Nie można uzyskać dostępu do kamery."
+    # zapisanie zdjecia jako img.png
+    photo = photo.split(',')[1]
+    with open(filepath, 'wb') as f:
+        f.write(b64decode(photo))
 
-    ret, frame = cap.read()
-    if ret:
-        cv2.imwrite(filepath, frame)
-        cap.release()
+    try:
         face.create_embedding(username,is_login)
         os.remove(f'{folder}/img.png')
         return f"Zdjęcie zapisane jako {filename}"
-    else:
-        cap.release()
+    except:
         return "Nie udało się zrobić zdjęcia."
 
 
@@ -159,7 +158,8 @@ def sign_up():
 def take_photo_route():
     username = request.form.get('username')
     is_login = request.form.get('is_login')  # Odbieramy is_login
-    message = take_photo(username, is_login)
+    cos= request.form.get('photo')
+    message = take_photo(username, is_login, cos)
     return jsonify({"message": message})
 
 
@@ -209,6 +209,6 @@ def sign_up_post():
 
 
 if __name__ == "__main__":
-    app.run(host="127.0.0.1", port=5000, debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 

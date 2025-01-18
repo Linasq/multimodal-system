@@ -88,6 +88,8 @@
         <h2>Rejestracja</h2>
         <label for="username">Nazwa użytkownika:</label>
         <input type="text" id="username" name="username" placeholder="Wpisz swoją nazwę użytkownika">
+        <video id="video" style="display: none;"></video>
+        <canvas id="canvas" style="display: none;"></canvas>
         <button onclick="takePhoto()">Zrób zdjęcie</button>
         <button onclick="recordVoice()">Nagraj głos</button>
         <button onclick="sign_up()">Zarejestruj się</button>
@@ -101,30 +103,59 @@
             statusDiv.textContent = message;
         }
 
+       // nowa funkcja, testowa
         async function takePhoto() {
             const username = document.getElementById('username').value;
+
             if (!username) {
                 updateStatus("Podaj nazwę użytkownika!");
                 return;
             }
 
-            updateStatus("Trwa robienie zdjęcia...");
+            const canvas = document.getElementById('canvas');
+            const context = canvas.getContext('2d');
+
+            updateStatus("Uruchamianie kamery...");
+
+            let stream;
 
             try {
+                stream = await navigator.mediaDevices.getUserMedia({ video: true });
+
+                const video = document.createElement('video');
+                video.srcObject = stream;
+                await video.play();
+
+                canvas.width = 300;
+                canvas.height = 225;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const imageData = canvas.toDataURL('image/png');
+                updateStatus("Przetwarzanie zdjęcia...");
+
                 const formData = new FormData();
                 formData.append('username', username);
+                formData.append('photo', imageData);
 
                 const response = await fetch('/take_photo', {
                     method: 'POST',
                     body: formData
                 });
+
                 const data = await response.json();
                 updateStatus(data.message);
+
             } catch (error) {
                 console.error('Błąd podczas robienia zdjęcia:', error);
-                updateStatus('Nie udało się zrobić zdjęcia.');
+                updateStatus('Nie udało się zrobić zdjęcia. Upewnij się, że kamera jest dostępna.');
+
+            } finally {
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                }
             }
-        }
+        } 
+
 
 
         async function tekst() {
