@@ -1,5 +1,4 @@
 from flask import Flask, jsonify, render_template, request, redirect, url_for
-import cv2
 import sounddevice as sd
 import wave
 import os
@@ -19,6 +18,7 @@ login_manager=flask_login.LoginManager()
 login_manager.init_app(app)
 SIGN_UP_FOLDER = 'db'
 LOG_IN_FOLDER = 'tmp'
+
 
 #--------------------------------------
 #           FLASK LOGIN
@@ -209,6 +209,8 @@ def sign_up_post():
 
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # app.run(host="0.0.0.0", port=5000, debug=True, ssl_context='adhoc')#, ssl_context=('.keys/cert.pem', '.keys/key.pem'))
+    app.run(host="0.0.0.0", port=5000, debug=True, ssl_context=('.keys/cert.pem', '.keys/key.pem'))
+    # app.run(host="0.0.0.0", port=5000, debug=True)
 
 
