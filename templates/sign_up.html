@@ -173,33 +173,57 @@
 
         }
 
-
-        async function recordVoice() {
+         async function recordVoice() {
             const username = document.getElementById('username').value;
+
             if (!username) {
                 updateStatus("Podaj nazwę użytkownika!");
                 return;
             }
 
             try {
-                tekst();
-                await new Promise(resolve => setTimeout(resolve, 2000));
-              
+                updateStatus("Rozpoczęcie nagrywania głosu...");
+
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const mediaRecorder = new MediaRecorder(stream);
+                const audioChunks = [];
+
+                mediaRecorder.ondataavailable = (event) => {
+                    if (event.data.size > 0) {
+                        audioChunks.push(event.data);
+                    }
+                };
+
+                mediaRecorder.start();
+                updateStatus("Nagrywanie trwa przez 5 sekund...");
+                await new Promise(resolve => setTimeout(resolve, 5000));
+
+                mediaRecorder.stop();
+
+                const audioBlob = await new Promise(resolve => {
+                    mediaRecorder.onstop = () => resolve(new Blob(audioChunks, { type: 'audio/webm' }));
+                });
+
+
                 const formData = new FormData();
                 formData.append('username', username);
+                formData.append('audio', audioBlob, 'glosowka');
 
                 const response = await fetch('/record_voice', {
                     method: 'POST',
                     body: formData
                 });
+
                 const data = await response.json();
-                updateStatus("Zakończono nagrywanie.\n" + data.message);
+                updateStatus("Nagranie zakończone.\n" + data.message);
+
             } catch (error) {
                 console.error('Błąd podczas nagrywania głosu:', error);
                 updateStatus('Nie udało się nagrać głosu.');
             }
         }
 
+       
 
         async function sign_up() {
             const username = document.getElementById('username').value;
