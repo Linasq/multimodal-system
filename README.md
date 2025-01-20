@@ -59,7 +59,7 @@ Additionally, several routes using the POST method are described below:
 The file `face.py` contains two functions responsible for communicating with the model:  
 
 - **`create_embedding`**: Creates an embedding based on an input photo and saves the matrix in the `emb.txt` file in the appropriate folder.  
-- **`verify_face`**: Takes two user embeddings and calculates the cosine distance between them, similar to the DeepFace framework or as in Laboratory 4. It then checks whether the calculated distance is within the specified threshold and returns the corresponding result.
+- **`verify_face`**: Takes two user embeddings and calculates the cosine distance between them, similar to the DeepFace framework. It then checks whether the calculated distance is within the specified threshold and returns the corresponding result.
 
 ---
 
