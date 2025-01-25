@@ -25,7 +25,7 @@ def create_embedding(login: str, is_login: bool):
         img_path = f'db/{login}/img.png'
         emb_path = f'db/{login}/emb.txt'
 
-    result = DeepFace.represent(img_path=img_path)
+    result = DeepFace.represent(img_path=img_path, anti_spoofing=True)
     logger.info(f'Created embedding of user {login}')
     
     with open(emb_path, 'w') as f:
