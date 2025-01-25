@@ -1,6 +1,4 @@
 from flask import Flask, jsonify, render_template, request
-import sounddevice as sd
-import wave
 import os
 from werkzeug.utils import secure_filename
 import face
@@ -92,7 +90,7 @@ def take_photo(username, is_login, photo):
 
 
 # zapisuje audio w odpowiednich folderach
-def record_voice(username, is_login):
+def record_voice(username, is_login, audio):
     if not username:
         return "Brak nazwy użytkownika."
 
@@ -101,16 +99,10 @@ def record_voice(username, is_login):
     folder = get_upload_folder(is_login) + "/" + username  # Ustal folder na podstawie wartości is_login
     filename = secure_filename("reference.wav")
     filepath = os.path.join(folder, filename)
-    
-    sample_rate = 16000
+
     try:
-        audio_data = sd.rec(int(7 * sample_rate), samplerate=sample_rate, channels=1, dtype='int16')
-        sd.wait()
-        with wave.open(filepath, 'wb') as wf:
-            wf.setnchannels(1)
-            wf.setsampwidth(2)
-            wf.setframerate(sample_rate)
-            wf.writeframes(audio_data.tobytes())
+
+        audio.save(filepath)
         return f"Dźwięk zapisany jako {filename}"
     except Exception as e:
         return f"Błąd podczas nagrywania: {str(e)}"
@@ -167,7 +159,8 @@ def take_photo_route():
 def record_voice_route():
     username = request.form.get('username')
     is_login = request.form.get('is_login')  # Odbieramy is_login
-    message = record_voice(username, is_login)
+    audio = request.files.get('audio')
+    message = record_voice(username, is_login, audio)
     return jsonify({"message": message})
 
 
